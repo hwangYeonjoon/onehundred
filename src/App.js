@@ -1,25 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import HeroVideo from './components/HeroVideo';
+import PhotoGallery from './components/PhotoGallery';
+import LetterSection from './components/LetterSection';
+import IntroGate from './components/IntroGate';
+import BgmPlayer from './components/BgmPlayer';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const bgmRef = useRef();
+
+    return (
+        <AuthProvider>
+            <Router>
+                <BgmPlayer ref={bgmRef} />
+                <Navbar />
+                <Routes>
+                    <Route path="/" element={<IntroGate />} />
+                    <Route
+                        path="/home"
+                        element={
+                            <ProtectedRoute>
+                                <HeroVideo />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/gallery"
+                        element={
+                            <ProtectedRoute>
+                                <PhotoGallery />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/letter"
+                        element={
+                            <ProtectedRoute>
+                                <LetterSection />
+                            </ProtectedRoute>
+                        }
+                    />
+                </Routes>
+            </Router>
+        </AuthProvider>
+    );
 }
 
 export default App;

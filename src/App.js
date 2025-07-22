@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HeroVideo from './components/HeroVideo';
 import PhotoGallery from './components/PhotoGallery';
@@ -7,7 +7,7 @@ import LetterSection from './components/LetterSection';
 import IntroGate from './components/IntroGate';
 import BgmPlayer from './components/BgmPlayer';
 import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
     const bgmRef = useRef();

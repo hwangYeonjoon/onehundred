@@ -8,7 +8,12 @@ function HeroVideo() {
             </h1>
             <video
                 controls
-                style={{ width: '29%', borderRadius: '1rem', marginTop: '1rem' }}
+                style={{
+                    width: '90%',
+                    maxWidth: '600px', // PC에서도 너무 커지지 않게
+                    borderRadius: '1rem',
+                    marginTop: '1rem'
+                }}
                 src="/videos/100video.mp4"
             />
         </section>

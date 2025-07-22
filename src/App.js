@@ -11,7 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
     const bgmRef = useRef();
-
+        console.log('test');
     return (
         <AuthProvider>
             <Router>

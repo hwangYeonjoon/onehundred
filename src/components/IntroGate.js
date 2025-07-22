@@ -2,6 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+// 사전 계산된 해시값
+const HASHED_CODE = '5b812607dcf8af6665be9809db40216875e6aeed27990ec04775a4a90983f5b2';
+
+// 입력 문자열을 SHA-256으로 해시하는 함수
+const sha256 = async (message) => {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+};
+
 function IntroGate() {
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
@@ -13,9 +24,10 @@ function IntroGate() {
         localStorage.removeItem('auth');
     }, [setAuthenticated]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (code === 'skfoduswns100') {
+        const inputHash = await sha256(code.trim());
+        if (inputHash === HASHED_CODE) {
             setAuthenticated(true);
             localStorage.setItem('auth', 'true');
             navigate('/home');

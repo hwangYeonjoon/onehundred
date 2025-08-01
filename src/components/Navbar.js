@@ -25,6 +25,9 @@ function Navbar() {
             <Link to="/letter" style={{ textDecoration: 'none', color: '#333' }}>
                 💌 편지
             </Link>
+            <Link to="/board" style={{ textDecoration: 'none', color: '#333' }}>
+                📝 자유 게시판
+            </Link>
         </nav>
     );
 }

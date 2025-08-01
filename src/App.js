@@ -8,6 +8,7 @@ import IntroGate from './components/IntroGate';
 import BgmPlayer from './components/BgmPlayer';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from "./components/ProtectedRoute";
+import FreeBoard from "./components/FreeBoard";
 
 function App() {
     const bgmRef = useRef();
@@ -40,6 +41,14 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <LetterSection />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/board"
+                        element={
+                            <ProtectedRoute>
+                                <FreeBoard />
                             </ProtectedRoute>
                         }
                     />

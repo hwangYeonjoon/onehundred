@@ -11,7 +11,7 @@ function FreeBoard() {
 
     const fetchPosts = async () => {
         try {
-            const res = await axios.get('/api/board/posts');
+            const res = await axios.get('https://mynews-m8ny.onrender.com/api/board/posts');
             console.log("댓글불러오기",res)
             setPosts(res.data);
         } catch (err) {
@@ -22,7 +22,7 @@ function FreeBoard() {
     const handleSubmit = async () => {
         if (input.trim()) {
             try {
-                const res = await axios.post('/api/board/posts', {
+                const res = await axios.post('https://mynews-m8ny.onrender.com/api/board/posts', {
                     content: input,
                 });
                 console.log("댓글 작성",res)
@@ -37,7 +37,7 @@ function FreeBoard() {
     const handleCommentSubmit = async (postId, comment) => {
         if (comment.trim()) {
             try {
-                const res = await axios.post('/api/board/comments', {
+                const res = await axios.post('https://mynews-m8ny.onrender.com/api/board/comments', {
                     postId,
                     content: comment,
                 });

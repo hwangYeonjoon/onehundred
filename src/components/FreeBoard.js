@@ -11,8 +11,8 @@ function FreeBoard() {
 
     const fetchPosts = async () => {
         try {
-            const res = await axios.get('https://mynews-m8ny.onrender.com/api/board/posts');
-            console.log("댓글불러오기",res)
+            const res = await axios.get('https://mynews-m8ny.onrender.com/api/board');
+            console.log("게시글 불러오기", res);
             setPosts(res.data);
         } catch (err) {
             console.error('게시글 불러오기 실패:', err);
@@ -22,11 +22,11 @@ function FreeBoard() {
     const handleSubmit = async () => {
         if (input.trim()) {
             try {
-                const res = await axios.post('https://mynews-m8ny.onrender.com/api/board/posts', {
+                const res = await axios.post('https://mynews-m8ny.onrender.com/api/board', {
                     content: input,
                 });
-                console.log("댓글 작성",res)
-                setPosts([res.data, ...posts]); // 새 글 추가
+                console.log("글 작성 성공", res);
+                setPosts([res.data, ...posts]);
                 setInput('');
             } catch (err) {
                 console.error('글 작성 실패:', err);
@@ -37,16 +37,14 @@ function FreeBoard() {
     const handleCommentSubmit = async (postId, comment) => {
         if (comment.trim()) {
             try {
-                const res = await axios.post('https://mynews-m8ny.onrender.com/api/board/comments', {
-                    postId,
+                const res = await axios.post(`https://mynews-m8ny.onrender.com/api/board/${postId}/comments`, {
                     content: comment,
                 });
-                console.log("댓글 전송",res)
-                // 해당 post에 댓글 추가
+                console.log("댓글 작성 성공", res);
                 setPosts((prevPosts) =>
                     prevPosts.map((post) =>
                         post.id === postId
-                            ? { ...post, comments: [...post.comments, res.data] }
+                            ? { ...post, comments: [...(post.comments || []), res.data] }
                             : post
                     )
                 );
@@ -97,7 +95,6 @@ function CommentSection({ comments, onSubmit }) {
         }
     };
 
-    // ✅ 방어 코드 추가
     const safeComments = Array.isArray(comments) ? comments : [];
 
     return (

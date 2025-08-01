@@ -1,24 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function FreeBoard() {
     const [posts, setPosts] = useState([]);
     const [input, setInput] = useState('');
 
-    const handleSubmit = () => {
-        if (input.trim()) {
-            setPosts([{ content: input, date: new Date().toLocaleString(), comments: [] }, ...posts]);
-            setInput('');
+    useEffect(() => {
+        fetchPosts();
+    }, []);
+
+    const fetchPosts = async () => {
+        try {
+            const res = await axios.get('/api/board/posts');
+            setPosts(res.data);
+        } catch (err) {
+            console.error('게시글 불러오기 실패:', err);
         }
     };
 
-    const handleCommentSubmit = (index, comment) => {
+    const handleSubmit = async () => {
+        if (input.trim()) {
+            try {
+                const res = await axios.post('/api/board/posts', {
+                    content: input,
+                });
+                setPosts([res.data, ...posts]); // 새 글 추가
+                setInput('');
+            } catch (err) {
+                console.error('글 작성 실패:', err);
+            }
+        }
+    };
+
+    const handleCommentSubmit = async (postId, comment) => {
         if (comment.trim()) {
-            const newPosts = [...posts];
-            newPosts[index].comments.push({
-                content: comment,
-                date: new Date().toLocaleString(),
-            });
-            setPosts(newPosts);
+            try {
+                const res = await axios.post('/api/board/comments', {
+                    postId,
+                    content: comment,
+                });
+
+                // 해당 post에 댓글 추가
+                setPosts((prevPosts) =>
+                    prevPosts.map((post) =>
+                        post.id === postId
+                            ? { ...post, comments: [...post.comments, res.data] }
+                            : post
+                    )
+                );
+            } catch (err) {
+                console.error('댓글 작성 실패:', err);
+            }
         }
     };
 
@@ -35,15 +67,15 @@ function FreeBoard() {
             <button onClick={handleSubmit}>작성</button>
 
             <ul>
-                {posts.map((post, index) => (
-                    <li key={index} style={{ margin: '2rem 0', borderBottom: '1px solid #ccc', paddingBottom: '1rem' }}>
+                {posts.map((post) => (
+                    <li key={post.id} style={{ margin: '2rem 0', borderBottom: '1px solid #ccc', paddingBottom: '1rem' }}>
                         <p>{post.content}</p>
                         <small>{post.date}</small>
 
                         <div style={{ marginTop: '1rem' }}>
                             <CommentSection
-                                comments={post.comments}
-                                onSubmit={(comment) => handleCommentSubmit(index, comment)}
+                                comments={post.comments || []}
+                                onSubmit={(comment) => handleCommentSubmit(post.id, comment)}
                             />
                         </div>
                     </li>

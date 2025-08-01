@@ -12,6 +12,7 @@ function FreeBoard() {
     const fetchPosts = async () => {
         try {
             const res = await axios.get('/api/board/posts');
+            console.log("댓글불러오기",res)
             setPosts(res.data);
         } catch (err) {
             console.error('게시글 불러오기 실패:', err);
@@ -24,6 +25,7 @@ function FreeBoard() {
                 const res = await axios.post('/api/board/posts', {
                     content: input,
                 });
+                console.log("댓글 작성",res)
                 setPosts([res.data, ...posts]); // 새 글 추가
                 setInput('');
             } catch (err) {
@@ -39,7 +41,7 @@ function FreeBoard() {
                     postId,
                     content: comment,
                 });
-
+                console.log("댓글 전송",res)
                 // 해당 post에 댓글 추가
                 setPosts((prevPosts) =>
                     prevPosts.map((post) =>
@@ -85,7 +87,7 @@ function FreeBoard() {
     );
 }
 
-function CommentSection({ comments = [], onSubmit }) {
+function CommentSection({ comments, onSubmit }) {
     const [commentInput, setCommentInput] = useState('');
 
     const handleSubmit = () => {
@@ -94,6 +96,9 @@ function CommentSection({ comments = [], onSubmit }) {
             setCommentInput('');
         }
     };
+
+    // ✅ 방어 코드 추가
+    const safeComments = Array.isArray(comments) ? comments : [];
 
     return (
         <div style={{ marginTop: '1rem' }}>
@@ -107,7 +112,7 @@ function CommentSection({ comments = [], onSubmit }) {
             <button onClick={handleSubmit}>댓글 작성</button>
 
             <ul style={{ marginTop: '1rem' }}>
-                {comments.map((cmt, idx) => (
+                {safeComments.map((cmt, idx) => (
                     <li key={idx} style={{ marginBottom: '0.5rem' }}>
                         <p style={{ margin: 0 }}>{cmt.content}</p>
                         <small>{cmt.date}</small>

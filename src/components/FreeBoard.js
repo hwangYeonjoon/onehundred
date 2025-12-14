@@ -76,8 +76,7 @@ function FreeBoard() {
         <div style={{ padding: '2rem' }}>
             <h2>📝 자유 게시판</h2>
             <p style={{ color: '#666', marginBottom: '0.5rem' }}>
-                배포 환경에선 Vercel API(https://onehundred-api-jv7r.vercel.app)로 연결되고, 로컬 테스트 시에는{' '}
-                <code>npm run server</code>를 실행해 localhost:4000을 사용합니다.
+                날애랑 연주니의 게시판 키키
             </p>
             <textarea
                 rows={4}

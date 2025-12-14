@@ -33,7 +33,7 @@ function FreeBoard() {
     }, [fetchPosts]);
 
     useEffect(() => {
-        const interval = setInterval(fetchPosts, 15000);
+        const interval = setInterval(fetchPosts, 60000); // refresh every 60s
         return () => clearInterval(interval);
     }, [fetchPosts]);
 
@@ -78,6 +78,9 @@ function FreeBoard() {
             <p style={{ color: '#666', marginBottom: '0.5rem' }}>
                 날애랑 연주니의 게시판 키키
             </p>
+            <button onClick={fetchPosts} disabled={loading} style={{ marginBottom: '0.75rem' }}>
+                {loading ? '불러오는 중...' : '새로고침'}
+            </button>
             <textarea
                 rows={4}
                 placeholder="자유롭게 글을 써보세요!"

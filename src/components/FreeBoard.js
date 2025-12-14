@@ -1,35 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+
+// Prefer env var; fall back to deployed API in production, localhost in dev
+const API_BASE =
+    process.env.REACT_APP_BOARD_API ||
+    (process.env.NODE_ENV === 'production'
+        ? 'https://onehundred-api-jv7r.vercel.app'
+        : 'http://localhost:4000');
 
 function FreeBoard() {
     const [posts, setPosts] = useState([]);
     const [input, setInput] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    const fetchPosts = useCallback(async () => {
+        try {
+            setLoading(true);
+            const res = await axios.get(`${API_BASE}/api/board`);
+            setPosts(Array.isArray(res.data) ? res.data : []);
+            setError('');
+        } catch (err) {
+            console.error('게시글 불러오기 실패:', err);
+            setError('게시글을 불러오지 못했습니다. 서버가 실행 중인지 확인해주세요.');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
         fetchPosts();
-    }, []);
+    }, [fetchPosts]);
 
-    const fetchPosts = async () => {
-        try {
-            const res = await axios.get('https://mynews-m8ny.onrender.com/api/board');
-            console.log("게시글 불러오기", res);
-            setPosts(res.data);
-        } catch (err) {
-            console.error('게시글 불러오기 실패:', err);
-        }
-    };
+    useEffect(() => {
+        const interval = setInterval(fetchPosts, 15000);
+        return () => clearInterval(interval);
+    }, [fetchPosts]);
 
     const handleSubmit = async () => {
         if (input.trim()) {
             try {
-                const res = await axios.post('https://mynews-m8ny.onrender.com/api/board', {
-                    content: input,
+                const res = await axios.post(`${API_BASE}/api/board`, {
+                    content: input.trim(),
                 });
-                console.log("글 작성 성공", res);
-                setPosts([res.data, ...posts]);
+                setPosts((prev) => [res.data, ...prev]);
                 setInput('');
             } catch (err) {
                 console.error('글 작성 실패:', err);
+                setError('글 작성에 실패했습니다.');
             }
         }
     };
@@ -37,10 +55,9 @@ function FreeBoard() {
     const handleCommentSubmit = async (postId, comment) => {
         if (comment.trim()) {
             try {
-                const res = await axios.post(`https://mynews-m8ny.onrender.com/api/board/${postId}/comments`, {
-                    content: comment,
+                const res = await axios.post(`${API_BASE}/api/board/${postId}/comments`, {
+                    content: comment.trim(),
                 });
-                console.log("댓글 작성 성공", res);
                 setPosts((prevPosts) =>
                     prevPosts.map((post) =>
                         post.id === postId
@@ -50,6 +67,7 @@ function FreeBoard() {
                 );
             } catch (err) {
                 console.error('댓글 작성 실패:', err);
+                setError('댓글 작성에 실패했습니다.');
             }
         }
     };
@@ -57,6 +75,10 @@ function FreeBoard() {
     return (
         <div style={{ padding: '2rem' }}>
             <h2>📝 자유 게시판</h2>
+            <p style={{ color: '#666', marginBottom: '0.5rem' }}>
+                배포 환경에선 Vercel API(https://onehundred-api-jv7r.vercel.app)로 연결되고, 로컬 테스트 시에는{' '}
+                <code>npm run server</code>를 실행해 localhost:4000을 사용합니다.
+            </p>
             <textarea
                 rows={4}
                 placeholder="자유롭게 글을 써보세요!"
@@ -66,11 +88,14 @@ function FreeBoard() {
             />
             <button onClick={handleSubmit}>작성</button>
 
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {loading && <p>불러오는 중...</p>}
+
             <ul>
                 {posts.map((post) => (
                     <li key={post.id} style={{ margin: '2rem 0', borderBottom: '1px solid #ccc', paddingBottom: '1rem' }}>
                         <p>{post.content}</p>
-                        <small>{post.date}</small>
+                        <small>{formatDate(post.date)}</small>
 
                         <div style={{ marginTop: '1rem' }}>
                             <CommentSection
@@ -110,14 +135,20 @@ function CommentSection({ comments, onSubmit }) {
 
             <ul style={{ marginTop: '1rem' }}>
                 {safeComments.map((cmt, idx) => (
-                    <li key={idx} style={{ marginBottom: '0.5rem' }}>
+                    <li key={cmt.id || `${idx}-${cmt.date}`} style={{ marginBottom: '0.5rem' }}>
                         <p style={{ margin: 0 }}>{cmt.content}</p>
-                        <small>{cmt.date}</small>
+                        <small>{formatDate(cmt.date)}</small>
                     </li>
                 ))}
             </ul>
         </div>
     );
+}
+
+function formatDate(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleString('ko-KR');
 }
 
 export default FreeBoard;

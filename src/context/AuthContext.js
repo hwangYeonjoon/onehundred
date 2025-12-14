@@ -1,10 +1,22 @@
 // src/context/AuthContext.js
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [authenticated, setAuthenticated] = useState(false);
+    const [authenticated, setAuthenticated] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return localStorage.getItem('auth') === 'true';
+    });
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        if (authenticated) {
+            localStorage.setItem('auth', 'true');
+        } else {
+            localStorage.removeItem('auth');
+        }
+    }, [authenticated]);
 
     return (
         <AuthContext.Provider value={{ authenticated, setAuthenticated }}>

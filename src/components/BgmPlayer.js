@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 function BgmPlayer() {
@@ -6,24 +6,8 @@ function BgmPlayer() {
     const [playing, setPlaying] = useState(false);
     const location = useLocation();
 
-    useEffect(() => {
-        // 사용자가 클릭하면 처음 재생 시도
-        const tryAutoPlay = () => {
-            if (!playing) {
-                audioRef.current.play().then(() => {
-                    setPlaying(true);
-                }).catch(() => {
-                    // 자동 재생 차단되면 무시
-                });
-            }
-        };
-        document.addEventListener('click', tryAutoPlay, { once: true });
-        return () => {
-            document.removeEventListener('click', tryAutoPlay);
-        };
-    }, []);
-
     const toggleAudio = () => {
+        if (!audioRef.current) return;
         if (playing) {
             audioRef.current.pause();
             setPlaying(false);
